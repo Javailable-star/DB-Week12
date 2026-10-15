@@ -13,6 +13,24 @@ Continue from the previous PHP/MySQL Resume Lab. Student target: manage the `ski
 - Task 2 (SELECT + UPDATE): `skill_edit.php` TODO 2a/2b, change level and verify the new value.
 - Task 3 (DELETE): `skill_delete.php` TODO 3, delete one practice record and verify it disappears.
 - Task 4: explain why UPDATE and DELETE require WHERE. Demonstrate parameter binding.
+## Task 4: คำอธิบาย WHERE และ Parameter Binding
+### 1. ทำไม UPDATE และ DELETE ต้องใช้ WHERE?
+WHERE ใช้กำหนดเงื่อนไขในการเลือกข้อมูลที่ต้องการแก้ไขหรือลบออกจากฐานข้อมูล หากไม่ใช้ WHERE คำสั่ง UPDATEหรือ DELETE อาจส่งผลต่อข้อมูลทุกแถวในตารางทำให้ข้อมูลถูกแก้ไขหรือลบโดยไม่ตั้งใจ WHERE ใช้กำหนดเงื่อนไขในการเลือกข้อมูลที่ต้องการแก้ไข หรือลบออกจากฐานข้อมูล หากไม่ใช้ WHERE คำสั่ง UPDATE หรือ DELETE อาจส่งผลต่อข้อมูลทุกแถวในตาราง ทำให้ข้อมูลถูกแก้ไขหรือลบโดยไม่ตั้งใจ
+
+### 2. Parameter Binding สำคัญอย่างไร?
+Parameter Binding คือการส่งค่าตัวแปรเข้าสู่คำสั่ง SQL ผ่าน Prepared Statement โดยใช้เครื่องหมาย ? เป็น Placeholder แทนการนำข้อมูลมาต่อกับ SQL โดยตรง วิธีนี้ช่วยป้องกัน SQL Injection และทำให้การจัดการ ข้อมูลในฐานข้อมูลมีความปลอดภัยมากขึ้น
+
+### 3. ตัวอย่างการใช้ Parameter Binding
+คำสั่ง SQL สำหรับลบทักษะ:
+DELETE FROM skill WHERE id = ? AND profile_id = ?;
+คำสั่ง PHP สำหรับกำหนดค่า Parameter:
+mysqli_stmt_bind_param($stmt, 'ii', $id, $pid);
+โดย 'ii' หมายถึงข้อมูลชนิด Integer จำนวน 2 ค่า
+ได้แก่ id ของทักษะ และ profile_id ของเจ้าของข้อมูล
+การใช้ WHERE ร่วมกับ Parameter Binding
+ช่วยให้ลบเฉพาะข้อมูลที่ต้องการและลดความเสี่ยง
+จาก SQL Injection
+
 - Task 5: Git workflow: create feature branch, commit SQL completion, push to GitHub (NO secrets), submit repository URL and screenshots.
 
 ## SQL mapping hints

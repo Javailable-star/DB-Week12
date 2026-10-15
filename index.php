@@ -1,6 +1,7 @@
 <?php
 require_once 'config/db.php';
 
+// Student profile (starter table)
 $profile = null;
 $sql = "SELECT * FROM profile LIMIT 1";
 $result = mysqli_query($conn, $sql);
@@ -8,6 +9,7 @@ if ($result && mysqli_num_rows($result) > 0) {
     $profile = mysqli_fetch_assoc($result);
 }
 
+// Education (starter table)
 $educations = [];
 $sql = "SELECT * FROM education ORDER BY start_year DESC";
 $result = mysqli_query($conn, $sql);
@@ -17,28 +19,26 @@ if ($result) {
     }
 }
 
+// Lab answer key: retrieve skills and training records from MySQL.
 $skills = [];
-if ($profile){
-    $profile_id = intval($profile['id']);
-    $sql = "SELECT * FROM skill WHERE profile_id = $profile_id";
-    $result = mysqli_query($conn, $sql);
-    if ($result) {
-        while ($row = mysqli_fetch_assoc($result)){
-            $skills[] = $row;
-        }
-    }
+$stmt = mysqli_prepare($conn, 'SELECT skill_name, skill_level FROM skill WHERE profile_id = ? ORDER BY id');
+if ($stmt) {
+    $profileId = (int)($profile['id'] ?? 0);
+    mysqli_stmt_bind_param($stmt, 'i', $profileId);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    while ($row = mysqli_fetch_assoc($result)) { $skills[] = $row; }
+    mysqli_stmt_close($stmt);
 }
-
 $trainings = [];
-if ($profile){
-    $profile_id = intval($profile['id']);
-    $sql = "SELECT * FROM training WHERE profile_id = $profile_id ORDER BY training_year DESC";
-    $result = mysqli_query($conn, $sql);
-    if ($result) {
-        while ($row = mysqli_fetch_assoc($result)){
-            $trainings[] = $row;
-        }
-    }
+$stmt = mysqli_prepare($conn, 'SELECT course_name, organization, training_year FROM training WHERE profile_id = ? ORDER BY training_year DESC, id DESC');
+if ($stmt) {
+    $profileId = (int)($profile['id'] ?? 0);
+    mysqli_stmt_bind_param($stmt, 'i', $profileId);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    while ($row = mysqli_fetch_assoc($result)) { $trainings[] = $row; }
+    mysqli_stmt_close($stmt);
 }
 ?>
 <!doctype html>
@@ -47,12 +47,13 @@ if ($profile){
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?php echo $profile ? htmlspecialchars($profile['full_name']) : 'My Resume'; ?></title>
-    <link rel="stylesheet" href="assets/css/style.css?v=2">
+    <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
 <div class="container">
+    <p><a href="skills.php" style="display:inline-block;padding:12px 18px;background:#135c9a;color:white;border-radius:10px;text-decoration:none">Manage Skills (CRUD Lab) →</a></p>
     <header class="hero card">
-        <img class="avatar" src="assets/images/<?php echo $profile ? htmlspecialchars($profile['photo']) : 'BB.jpg'; ?>?v=3" alt="Profile Photo">
+        <img class="avatar" src="assets/images/<?php echo $profile ? htmlspecialchars($profile['photo']) : 'student.jpg'; ?>" alt="Profile Photo">
         <div>
             <h1><?php echo $profile ? htmlspecialchars($profile['full_name']) : 'Your Name'; ?></h1>
             <p class="headline"><?php echo $profile ? htmlspecialchars($profile['headline']) : 'Student Resume Website'; ?></p>
@@ -86,9 +87,6 @@ if ($profile){
 
     <section class="card">
         <h2>Skills</h2>
-
-<a href="skills.php" style="display:inline-block; background:#d4af37; color:#18121f; padding:10px 18px; border-radius:6px; text-decoration:none; font-weight:bold; margin-bottom:15px;">Manage Skills →</a>
-   
         <div class="skills">
             <?php foreach ($skills as $skill): ?>
                 <div class="skill-badge">
@@ -97,20 +95,18 @@ if ($profile){
                 </div>
             <?php endforeach; ?>
         </div>
+        
     </section>
 
     <section class="card">
         <h2>Training / Certificates</h2>
-        <?php if (count($trainings) > 0): ?>
-            <?php foreach ($trainings as $training): ?>
-                <div class="item">
-                    <h3><?php echo htmlspecialchars($training['course_name']); ?></h3>
-                    <p><?php echo htmlspecialchars($training['organization']); ?>, <?php echo htmlspecialchars($training['training_year']); ?></p>
-                </div>
-            <?php endforeach; ?>
-        <?php else: ?>
-            <p>No training data found.</p>
-        <?php endif; ?>
+        <?php foreach ($trainings as $training): ?>
+            <div class="item">
+                <h3><?php echo htmlspecialchars($training['course_name']); ?></h3>
+                <p><?php echo htmlspecialchars($training['organization']); ?>, <?php echo htmlspecialchars($training['training_year']); ?></p>
+            </div>
+        <?php endforeach; ?>
+        
     </section>
 
     <footer>

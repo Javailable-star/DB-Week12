@@ -1,3 +1,43 @@
+Authentication Exercise
+
+This project extends the previous Resume CRUD Lab with PHP Authentication.
+
+New Features
+
+User registration with password hashing
+
+Login using prepared statements and password_verify()
+
+PHP Session authentication
+
+Secure logout using POST and CSRF protection
+
+User-specific Resume and Skill CRUD operations
+
+Authentication Flow
+
+Users register with their email and password.
+
+Passwords are securely hashed before being stored in MySQL.
+
+After successful login, the system stores user_id, profile_id, and email in the PHP Session.
+
+Users can manage only their own Skills.
+
+Logout destroys the Session and redirects to the Login page.
+
+Database
+
+Added the users table using database/this_week_migration.sql without deleting the previous database tables.
+
+Live Website
+
+https://angsila.informatics.buu.ac.th/~68160197/login.php
+
+Previous Week
+
+Resume CRUD Lab: INSERT, SELECT, UPDATE, DELETE.
+
 # Resume CRUD Lab: INSERT / UPDATE / DELETE
 
 Continue from the previous PHP/MySQL Resume Lab. Student target: manage the `skill` table.
